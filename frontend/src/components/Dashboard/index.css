@@ -1,0 +1,400 @@
+/* Base Reset */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  background-color: #0f0f1a;
+  color: #e0e0e0;
+}
+
+/* Container */
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* Animated Circuit Traces */
+.circuit-trace {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(#8a2be2 0.5px, transparent 1px);
+  background-size: 40px 40px;
+  animation: float-particles 60s linear infinite;
+  opacity: 0.05;
+}
+
+@keyframes float-particles {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-500px, -500px);
+  }
+}
+
+/* Holographic Panel */
+.dashboard-content {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.08)
+  );
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 0 40px rgba(138, 43, 226, 0.3);
+  padding: 40px;
+  width: 100%;
+  max-width: 900px;
+  animation: fade-in-up 0.8s ease-out;
+}
+
+/* Title */
+.dashboard-content h2 {
+  text-align: center;
+  color: #a974f2;
+  text-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+/* Description */
+.dashboard-content p {
+  text-align: center;
+  color: #ccc0e9;
+  margin-bottom: 30px;
+}
+
+/* Upload Form */
+.upload-form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.upload-form input {
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Buttons */
+.upload-button,
+.analyze-button {
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #8a2be2, #6a1bbf);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+  transition: transform 0.2s, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-button:hover,
+.analyze-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(138, 43, 226, 0.7);
+}
+
+/* Analysis Section */
+.analysis-section {
+  margin-top: 30px;
+  padding: 25px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  animation: fade-in 0.7s ease-in;
+}
+
+.analysis-section h3 {
+  color: #9a5dff;
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.analysis-section pre {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #ded5ff;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Animations */
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 950px) {
+  .dashboard-content {
+    padding: 30px;
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-content {
+    padding: 20px;
+  }
+
+  .dashboard-content h2 {
+    font-size: 1.8rem;
+  }
+
+  .upload-form {
+    flex-direction: column;
+  }
+
+  .upload-button,
+  .analyze-button {
+    width: 100%;
+  }
+}
+
+/* 3D Floating Dots / Bubbles */
+.particle-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle-field::before {
+  content: '';
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  background: radial-gradient(circle, #8a2be2 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.03;
+  animation: drift 90s linear infinite;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-600px, -600px);
+  }
+}
+
+/* Neon Grid-Lines Animations */
+.neon-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+      0deg,
+      rgba(138, 43, 226, 0.05),
+      rgba(138, 43, 226, 0.05) 2px,
+      transparent 2px,
+      transparent 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(138, 43, 226, 0.05),
+      rgba(138, 43, 226, 0.05) 2px,
+      transparent 2px,
+      transparent 40px
+    );
+  animation: neonMove 100s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes neonMove {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-800px, -800px);
+  }
+}
+
+/* Light Beams */
+.light-rays {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(138, 43, 226, 0.08),
+    transparent 70%
+  );
+  animation: pulse-light 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes pulse-light {
+  0% {
+    opacity: 0.04;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.08;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.04;
+    transform: scale(1);
+  }
+}
+/* Add to your existing index.css */
+.parallax-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 500px;
+  margin-top: -250px;
+  margin-left: -250px;
+  pointer-events: none;
+  z-index: 1; /* Keep it above the background, but below the content */
+  transform-style: preserve-3d;
+  animation: rotate-orbit 30s linear infinite;
+}
+
+@keyframes rotate-orbit {
+  from {
+    transform: rotateY(0deg) rotateX(0deg);
+  }
+  to {
+    transform: rotateY(360deg) rotateX(360deg);
+  }
+}
+
+.orbit-icon {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+}
+.orbit-icon.html5 {
+  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg');
+  animation-delay: 0s;
+}
+.orbit-icon.css3 {
+  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg');
+  animation-delay: 5s;
+}
+.orbit-icon.js {
+  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg');
+  animation-delay: 10s;
+}
+.orbit-icon.react {
+  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg');
+  animation-delay: 15s;
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateX(200px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(200px) rotate(-360deg);
+  }
+}
+*/ .aurora {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300%;
+  height: 300%;
+  background: radial-gradient(circle at 30% 30%, #8a2be2 10%, transparent 40%),
+    radial-gradient(circle at 70% 70%, #6a1bbf 10%, transparent 40%);
+  animation: auroraFlow 50s linear infinite;
+  opacity: 0.03;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes auroraFlow {
+  0% {
+    transform: translate(0%, 0%);
+  }
+  100% {
+    transform: translate(-50%, -50%);
+  }
+}
+
+.glitch-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 300%;
+  height: 300%;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: glitchMove 60s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes glitchMove {
+  0% {
+    transform: translateY(0%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}

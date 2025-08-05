@@ -1,0 +1,156 @@
+/* src/components/Register/index.css (Starfield Concept) */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  position: relative;
+  background-color: #0d0d1a; /* Dark navy background */
+  overflow: hidden;
+}
+
+/* Starfield Particle Animation */
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stars span {
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle 5s linear infinite;
+}
+
+@keyframes twinkle {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Register Form Styling */
+.register-form {
+  position: relative;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.08); /* Slightly more transparent */
+  backdrop-filter: blur(10px); /* A bit more blur for depth */
+  padding: 50px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); /* Deeper shadow */
+  width: 100%;
+  max-width: 450px;
+  color: #e0e0e0;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fade-slide-in 1.2s ease forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes fade-slide-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-form h2 {
+  text-align: center;
+  color: #ffc107; /* Warm, golden heading color */
+  text-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+  margin-bottom: 30px;
+  font-size: 2.2rem;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  border-radius: 6px;
+  color: #ffffff;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.form-group input:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+}
+
+.register-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #ffc107;
+  color: #1c1c1c;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(255, 193, 7, 0.4);
+}
+
+.register-button:hover {
+  background-color: #ffb300;
+  box-shadow: 0 0 25px rgba(255, 193, 7, 0.7);
+  transform: translateY(-2px);
+}
+
+.error-message {
+  color: #ff6b6b;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .register-form {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 400px) {
+  .register-form {
+    padding: 20px;
+  }
+  .register-form h2 {
+    font-size: 1.8rem;
+  }
+  .register-button {
+    font-size: 1rem;
+  }
+}

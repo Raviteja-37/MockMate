@@ -1,13 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const routes = require('./Routes/authRoutes');
 const resumeRoutes = require('./Routes/resumeRoutes');
 
 dotenv.config();
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
 app.use('/api/auth', routes);
 app.use('/api/resume', resumeRoutes);
