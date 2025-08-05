@@ -1,0 +1,37 @@
+### Register a new user
+POST http://localhost:5001/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "RaviTeja",
+  "email": "raviteja.dev+3@example.com",
+  "password": "my_secure_password"
+}
+
+
+
+### Upload a new resume
+POST http://localhost:5001/api/resume/upload
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODkwM2M4MDgxZjA5Yjg3M2UxMTk0NDMiLCJpYXQiOjE3NTQzODU2MzIsImV4cCI6MTc1NDM4OTIzMn0.PyAcv4KpXCZvDdPmVZH7mFuxwy_7trozxqi0zxmcItY
+Content-Type: multipart/form-data; boundary=my-boundary
+
+--my-boundary
+Content-Disposition: form-data; name="resumeFile"; filename="my_resume.pdf"
+Content-Type: application/pdf
+
+< /Users/ravitejakondamuri/Downloads/Sample.pages
+
+--my-boundary--
+
+
+
+### Get all resumes for authenticated user
+GET http://localhost:5001/api/resume
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODkwM2M4MDgxZjA5Yjg3M2UxMTk0NDMiLCJpYXQiOjE3NTQzODU2MzIsImV4cCI6MTc1NDM4OTIzMn0.PyAcv4KpXCZvDdPmVZH7mFuxwy_7trozxqi0zxmcItY
+
+
+
+### Run AI analysis on a resume
+POST http://localhost:5001/api/resume/689193b24e061697b0563247/analyze
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODkwM2M4MDgxZjA5Yjg3M2UxMTk0NDMiLCJpYXQiOjE3NTQzODU2MzIsImV4cCI6MTc1NDM4OTIzMn0.PyAcv4KpXCZvDdPmVZH7mFuxwy_7trozxqi0zxmcItY
+Content-Type: application/json
