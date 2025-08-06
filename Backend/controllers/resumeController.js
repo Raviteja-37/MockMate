@@ -3,6 +3,8 @@ const Resume = require('../models/resume');
 const mongoose = require('mongoose');
 const axios = require('axios');
 const fs = require('fs').promises;
+const path = require('path'); // <--- ADD THIS LINE
+const pdf = require('pdf-parse');
 
 exports.uploadResume = async (req, res) => {
   try {
@@ -50,10 +52,13 @@ exports.analyzeResume = async (req, res) => {
       return res.status(404).json({ error: 'Resume not found' });
     }
 
-    // Read the resume file from the local filesystem
-    const resumeText = await fs.readFile(resume.fileUrl, 'utf-8');
+    const resumePath = path.join(__dirname, '..', resume.fileUrl);
 
-    // Make a POST request to your Python AI service
+    // CORRECTED: Read the file as binary data for pdf-parse
+    const dataBuffer = await fs.readFile(resumePath);
+    const pdfData = await pdf(dataBuffer);
+    const resumeText = pdfData.text;
+
     // Make a POST request to your Python AI service
     const aiResponse = await axios.post(
       'http://localhost:5002/analyze_resume',

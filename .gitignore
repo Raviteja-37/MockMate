@@ -9,9 +9,15 @@
 /AI/venv/
 /AI/.env
 
+#frontend
+/frontend/node_modules/
+/frontend/.env
+
+
+
 # Visual Studio Code
 .vscode/
 
 # Logs and other files
 *.log
-
+.DS_Store

@@ -1,4 +1,4 @@
-# AI/app.py
+# AI/app.py (Updated for Voice Interview)
 import os
 import google.generativeai as genai
 from flask import Flask, jsonify, request
@@ -30,17 +30,17 @@ def analyze_resume():
 
         # Define the prompt for the Gemini AI model
         prompt = f"""
-        You are a helpful and detailed resume analysis assistant. Your task is to analyze the provided resume text and provide a score, detailed feedback, and generate relevant interview questions.
+        You are a helpful resume analysis assistant. Your task is to analyze the provided resume text and provide a score, detailed feedback, and generate relevant interview questions.
 
         Resume Text:
         {resume_text}
 
         Please follow these instructions exactly:
-        1.  **Resume Score:** Provide a score from 1 to 100 based on the resume's overall quality, clarity, and professionalism.
-        2.  **Key Highlights:** Identify the top 3-5 key skills and 1-2 major projects/experiences from the resume.
-        3.  **Detailed Feedback:** Provide constructive feedback in bullet points. Include suggestions on how to improve the resume's clarity, impact, and formatting.
-        4.  **Interview Questions:** Generate 7 relevant interview questions based on the content of the resume. 3 should be a technical question, and 4 should be behavioral questions.
-        
+        1.  **Resume Score:** Provide a score from 1 to 100.
+        2.  **Key Highlights:** Identify the top 3-5 key skills and 1-2 major projects/experiences.
+        3.  **Detailed Feedback:** Provide constructive feedback in bullet points.
+        4.  **Interview Questions:** Generate 3 relevant interview questions based on the resume.
+
         Format your response as a single, readable string.
         """
         
@@ -48,7 +48,6 @@ def analyze_resume():
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         
-        # Check if the response contains any content
         if response.text:
             return jsonify({"analysis": response.text})
         else:
@@ -57,6 +56,47 @@ def analyze_resume():
     except Exception as e:
         print(f"Error during AI analysis: {e}")
         return jsonify({"error": "An error occurred during the analysis."}), 500
+
+# The new endpoint for the voice-based interview
+@app.route('/interview', methods=['POST'])
+def interview():
+    try:
+        data = request.json
+        resume_text = data.get("resume_text")
+        user_answer = data.get("user_answer")
+        
+        if not resume_text or not user_answer:
+            return jsonify({"error": "Missing resume text or user answer"}), 400
+
+        # Define the prompt for the Gemini AI model to act as an interviewer
+        prompt = f"""
+        You are an AI interviewer. Your role is to ask the user a single interview question based on their resume and then evaluate their answer.
+
+        Resume Text:
+        {resume_text}
+
+        User's Answer:
+        {user_answer}
+
+        Based on the resume and the user's answer, please do the following:
+        1.  **Evaluation:** Provide brief, constructive feedback on the user's answer.
+        2.  **Next Question:** Ask a single, follow-up interview question that is either a technical, behavioral, or situational question. Make sure the question is relevant to the resume.
+
+        Format your response as a single, readable string.
+        """
+        
+        # Call the Gemini API
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        
+        if response.text:
+            return jsonify({"feedback": response.text})
+        else:
+            return jsonify({"error": "Failed to generate a response from the AI model."}), 500
+
+    except Exception as e:
+        print(f"Error during AI interview: {e}")
+        return jsonify({"error": "An error occurred during the interview."}), 500
 
 if __name__ == '__main__':
     app.run(port=5002, debug=True)
