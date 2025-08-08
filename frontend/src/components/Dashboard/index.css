@@ -1,9 +1,17 @@
-/* Base Reset */
+/* src/components/Dashboard/index.css */
+
+/* Universal Box Sizing for consistent layout */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  overflow: hidden;
-  height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal scrollbars */
+  min-height: 100vh; /* Use min-height for content */
   background-color: #0f0f1a;
   color: #e0e0e0;
 }
@@ -22,7 +30,7 @@ body {
   z-index: 1;
 }
 
-/* Animated Circuit Traces */
+/* Animated Circuit Traces (User's preferred background animation) */
 .circuit-trace {
   position: absolute;
   top: 0;
@@ -46,7 +54,7 @@ body {
   }
 }
 
-/* Holographic Panel */
+/* Holographic Panel (Main Content Container) */
 .dashboard-content {
   position: relative;
   z-index: 2;
@@ -62,7 +70,27 @@ body {
   padding: 40px;
   width: 100%;
   max-width: 900px;
+  /* Key changes for flexible height and internal scrolling */
+  min-height: 600px; /* Ensure a minimum size */
+  max-height: calc(
+    100vh - 140px
+  ); /* Constrain total height to viewport (navbar + some margin) */
+  overflow-y: auto; /* Enable scrolling for the entire content panel */
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Spacing between major content blocks */
   animation: fade-in-up 0.8s ease-out;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Title */
@@ -72,6 +100,7 @@ body {
   text-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
   font-size: 2.5rem;
   margin-bottom: 20px;
+  flex-shrink: 0; /* Prevent heading from shrinking */
 }
 
 /* Description */
@@ -79,6 +108,7 @@ body {
   text-align: center;
   color: #ccc0e9;
   margin-bottom: 30px;
+  flex-shrink: 0; /* Prevent paragraph from shrinking */
 }
 
 /* Upload Form */
@@ -86,12 +116,14 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* Center form elements horizontally */
   gap: 20px;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  margin-bottom: 30px; /* Space below the upload form */
+  flex-shrink: 0; /* Prevent form from shrinking */
 }
 
-.upload-form input {
+.upload-form input[type='file'] {
   padding: 12px;
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(138, 43, 226, 0.3);
@@ -99,9 +131,19 @@ body {
   color: #ffffff;
   cursor: pointer;
   font-size: 1rem;
+  flex-grow: 1; /* Allow input to grow */
+  min-width: 200px; /* Ensure it's not too small */
 }
 
-/* Buttons */
+/* Buttons (Upload, Analyze, Start Interview) */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  width: 100%;
+  margin-top: 20px;
+}
 .upload-button,
 .analyze-button {
   padding: 12px 30px;
@@ -116,6 +158,10 @@ body {
   transition: transform 0.2s, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
+  display: block; /* Make buttons block-level to use margin: auto */
+  margin: 0 auto; /* Center horizontally within their container */
+  max-width: 300px; /* Limit max width for larger screens */
+  flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 .upload-button:hover,
@@ -131,15 +177,19 @@ body {
   background-color: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  max-height: 400px;
-  overflow-y: auto;
+  /* The parent container (dashboard-content) has overflow-y: auto, so this section can fill space */
+  flex-grow: 1;
   animation: fade-in 0.7s ease-in;
+  display: flex;
+  flex-direction: column;
+  height: auto;
 }
 
 .analysis-section h3 {
   color: #9a5dff;
   font-size: 1.5rem;
   margin-bottom: 15px;
+  flex-shrink: 0; /* Prevent heading from shrinking */
 }
 
 .analysis-section pre {
@@ -148,6 +198,7 @@ body {
   color: #ded5ff;
   white-space: pre-wrap;
   word-break: break-word;
+  flex-grow: 1;
 }
 
 /* Animations */
@@ -176,6 +227,8 @@ body {
   .dashboard-content {
     padding: 30px;
     max-width: 95%;
+    min-height: auto;
+    max-height: calc(100vh - 140px);
   }
 }
 
@@ -195,8 +248,14 @@ body {
   .upload-button,
   .analyze-button {
     width: 100%;
+    max-width: 100%; /* Override max-width for small screens */
+    margin-left: 0; /* Remove auto margin for full width */
+    margin-right: 0;
   }
 }
+
+/* User's existing background animations - these are kept as is */
+/* Ensure these classes are applied in Dashboard/index.jsx */
 
 /* 3D Floating Dots / Bubbles */
 .particle-field {
@@ -290,7 +349,8 @@ body {
     transform: scale(1);
   }
 }
-/* Add to your existing index.css */
+
+/* Parallax Orbit */
 .parallax-orbit {
   position: absolute;
   top: 50%;
@@ -341,6 +401,7 @@ body {
   animation-delay: 15s;
 }
 
+/* This @keyframes orbit might be a duplicate or unused if rotate-orbit is used */
 @keyframes orbit {
   0% {
     transform: rotate(0deg) translateX(200px) rotate(0deg);

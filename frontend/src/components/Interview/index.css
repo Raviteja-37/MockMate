@@ -2,7 +2,6 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  overflow: hidden;
 }
 
 .interview-container {
@@ -61,8 +60,10 @@ body {
   width: 100%;
   max-width: 800px;
   min-height: 600px;
+  height: 90vh;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .interview-content h2 {

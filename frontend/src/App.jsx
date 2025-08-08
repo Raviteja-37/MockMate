@@ -4,11 +4,13 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import Interview from './components/Interview';
+import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
     <Router>
+      <Navbar />
       <div className="App">
         <Routes>
           {/* Public routes */}

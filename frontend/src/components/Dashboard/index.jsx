@@ -1,7 +1,8 @@
-// src/components/Dashboard/index.jsx (UPDATED with animation class)
+// src/components/Dashboard/index.jsx (UPDATED with Interview Button)
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom'; // <--- ADD THIS IMPORT
 import './index.css'; // Make sure this import is correct
 
 const Dashboard = () => {
@@ -9,6 +10,7 @@ const Dashboard = () => {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [resumeId, setResumeId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate(); // <--- Initialize useNavigate
 
   const onFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -42,7 +44,7 @@ const Dashboard = () => {
       );
       console.log('File uploaded successfully!', res.data);
       alert('File uploaded successfully!');
-      setResumeId(res.data.resume._id);
+      setResumeId(res.data.resume._id); // Save the resume ID
     } catch (err) {
       console.error(err.response ? err.response.data : err);
       alert('File upload failed. Check the console for details.');
@@ -80,20 +82,24 @@ const Dashboard = () => {
     }
   };
 
+  // New function to handle starting the interview
+  const onStartInterview = () => {
+    if (resumeId) {
+      // Navigate to the interview page, passing the resumeId as state
+      navigate('/interview', { state: { resumeId: resumeId } });
+    } else {
+      alert('Please upload and analyze a resume first to start the interview.');
+    }
+  };
+
   return (
     <div className="dashboard-container">
+      {/* Background animations - ensure these classes are defined in index.css */}
       <div className="neon-lines"></div>
       <div className="particle-field"></div>
       <div className="light-rays"></div>
       <div className="aurora"></div>
       <div className="glitch-lines"></div>
-
-      {/* <div className="parallax-orbit">
-        <div className="orbit-icon html5"></div>
-        <div className="orbit-icon css3"></div>
-        <div className="orbit-icon js"></div>
-        <div className="orbit-icon react"></div>
-      </div> */}
 
       <div className="dashboard-content">
         <h2>Dashboard</h2>
@@ -111,21 +117,27 @@ const Dashboard = () => {
           </button>
         </form>
 
-        {resumeId && (
-          <button
-            onClick={onAnalyze}
-            className="analyze-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Analyzing...' : 'Analyze Resume'}
-          </button>
-        )}
+        {resumeId &&
+          !analysisResult && ( // Show Analyze button only if resumeId exists and analysis not yet done
+            <button
+              onClick={onAnalyze}
+              className="analyze-button"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Analyzing...' : 'Analyze Resume'}
+            </button>
+          )}
 
-        {analysisResult && (
-          <div className="analysis-section">
-            <h3>AI Analysis Result</h3>
-            <pre>{analysisResult}</pre>
-          </div>
+        {analysisResult && ( // Show analysis and interview button only after analysis is done
+          <>
+            <div className="analysis-section">
+              <h3>AI Analysis Result</h3>
+              <pre>{analysisResult}</pre>
+            </div>
+            <button onClick={onStartInterview} className="analyze-button">
+              Start Interview
+            </button>
+          </>
         )}
       </div>
     </div>

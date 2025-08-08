@@ -1,4 +1,3 @@
-# AI/app.py (Updated for Voice Interview)
 import os
 import google.generativeai as genai
 from flask import Flask, jsonify, request
@@ -13,11 +12,6 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 app = Flask(__name__)
 
-# A simple endpoint to test if the server is running
-@app.route('/ping', methods=['GET'])
-def ping():
-    return jsonify({"message": "Pong! AI service is running."})
-
 # The main endpoint for resume analysis
 @app.route('/analyze_resume', methods=['POST'])
 def analyze_resume():
@@ -28,7 +22,6 @@ def analyze_resume():
         if not resume_text:
             return jsonify({"error": "No resume text provided"}), 400
 
-        # Define the prompt for the Gemini AI model
         prompt = f"""
         You are a helpful resume analysis assistant. Your task is to analyze the provided resume text and provide a score, detailed feedback, and generate relevant interview questions.
 
@@ -44,7 +37,6 @@ def analyze_resume():
         Format your response as a single, readable string.
         """
         
-        # Call the Gemini API
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(prompt)
         
@@ -60,15 +52,17 @@ def analyze_resume():
 # The new endpoint for the voice-based interview
 @app.route('/interview', methods=['POST'])
 def interview():
+    print("Python AI: Received interview request.") # DEBUG 1
     try:
         data = request.json
         resume_text = data.get("resume_text")
         user_answer = data.get("user_answer")
-        
+        chat_history = data.get("chat_history", []) # Get the chat history
+
         if not resume_text or not user_answer:
             return jsonify({"error": "Missing resume text or user answer"}), 400
 
-        # Define the prompt for the Gemini AI model to act as an interviewer
+        print("Python AI: Resume and answer received. Building prompt.") # DEBUG 2
         prompt = f"""
         You are an AI interviewer. Your role is to ask the user a single interview question based on their resume and then evaluate their answer.
 
@@ -77,6 +71,9 @@ def interview():
 
         User's Answer:
         {user_answer}
+        
+        Chat History:
+        {chat_history}
 
         Based on the resume and the user's answer, please do the following:
         1.  **Evaluation:** Provide brief, constructive feedback on the user's answer.
@@ -87,7 +84,9 @@ def interview():
         
         # Call the Gemini API
         model = genai.GenerativeModel('gemini-1.5-flash')
+        print("Python AI: Sending request to Gemini API...")  # DEBUG 3
         response = model.generate_content(prompt)
+        print("Python AI: Received response from Gemini API.")  # DEBUG 4
         
         if response.text:
             return jsonify({"feedback": response.text})
