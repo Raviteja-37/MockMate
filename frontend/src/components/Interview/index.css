@@ -139,3 +139,50 @@ body {
   cursor: not-allowed;
   box-shadow: none;
 }
+
+.silence-timer {
+  color: #ff5722;
+  font-weight: 600;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.voice-selector {
+  margin-bottom: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.voice-selector label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #e0e0e0;
+}
+
+.voice-selector select {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border: 1.8px solid #4a90e2;
+  border-radius: 8px;
+  background-color: white;
+  color: #222;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 220px;
+}
+
+.voice-selector select:hover {
+  border-color: #357abd;
+  box-shadow: 0 0 8px rgba(53, 122, 189, 0.4);
+}
+
+.voice-selector select:focus {
+  outline: none;
+  border-color: #245a9b;
+  box-shadow: 0 0 12px rgba(36, 90, 155, 0.6);
+}

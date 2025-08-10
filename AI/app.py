@@ -52,7 +52,7 @@ def analyze_resume():
 # The new endpoint for the voice-based interview
 @app.route('/interview', methods=['POST'])
 def interview():
-    print("Python AI: Received interview request.") # DEBUG 1
+    # print("Python AI: Received interview request.") # DEBUG 1
     try:
         data = request.json
         resume_text = data.get("resume_text")
@@ -62,26 +62,65 @@ def interview():
         if not resume_text or not user_answer:
             return jsonify({"error": "Missing resume text or user answer"}), 400
 
-        print("Python AI: Resume and answer received. Building prompt.") # DEBUG 2
+        # print("Python AI: Resume and answer received. Building prompt.") # DEBUG 2
+
+        
         prompt = f"""
-        You are an AI interviewer. Your role is to ask the user a single interview question based on their resume and then evaluate their answer.
+            You are an AI interviewer for students preparing for placements.
+            Your goal is to conduct a complete interview based on the candidate's resume, covering all key areas.
 
-        Resume Text:
-        {resume_text}
+            Resume Text:
+            {resume_text}
 
-        User's Answer:
-        {user_answer}
+            User's Latest Answer:
+            {user_answer}
+
+            Chat History (previous questions and answers):
+            {chat_history}
+
+            Guidelines:
+            1. **Cover All Areas**:
+                - Technical skills and concepts mentioned in the resume.
+                - Projects (ask in-depth follow-up questions).
+                - Problem-solving & analytical skills.
+                - Behavioral questions (teamwork, leadership, challenges).
+                - General aptitude / communication skills.
+
+            2. **Flow**:
+                - Start with technical/project-based questions.
+                - Then ask behavioral and soft-skill questions.
+                - Finally, ask general aptitude/non-technical questions.
+                - Avoid repeating topics already covered in chat_history.
+
+            3. **Name Handling**:
+                - If the candidate’s name is recognizable in their first answer (introduction), remember it and use their name naturally in all follow-up questions and feedback.
+
+            4. **Ending Criteria**:
+                - Stop when you have asked enough questions to cover all important areas from the resume.
+                - After coverage is complete, do not ask another question.
+                - Instead, give a **Final Report**:
+                    - Overall score (0–100)
+                    - Section-wise performance
+                    - Strengths
+                    - Areas for improvement
+                    - Suggestions for preparation
+
+            5. **Format**:
+                - If continuing:  
+                Feedback: <1–2 sentence evaluation of latest answer>  
+                Next Question: <the next interview question, using candidate’s name if known>
+                - If ending:  
+                Final Report: Overall Score: X, Technical: Y, Behavioral: Z, Non-Technical: W, Strengths: ..., Improvements: ..., Suggestions: ...
+
+            Make sure the interview feels realistic and adaptive to the candidate’s resume.
+            """
+
+
+
         
-        Chat History:
-        {chat_history}
 
-        Based on the resume and the user's answer, please do the following:
-        1.  **Evaluation:** Provide brief, constructive feedback on the user's answer.
-        2.  **Next Question:** Ask a single, follow-up interview question that is either a technical, behavioral, or situational question. Make sure the question is relevant to the resume.
 
-        Format your response as a single, readable string.
-        """
-        
+
         # Call the Gemini API
         model = genai.GenerativeModel('gemini-1.5-flash')
         print("Python AI: Sending request to Gemini API...")  # DEBUG 3

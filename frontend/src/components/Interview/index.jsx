@@ -17,6 +17,9 @@ const Interview = () => {
   const [resumeText, setResumeText] = useState('');
   const [isInitialized, setIsInitialized] = useState(false);
   const [finalScore, setFinalScore] = useState(null);
+  const [silenceCountdown, setSilenceCountdown] = useState(0);
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState(null);
 
   const recognitionRef = useRef(null);
   const isSpeakingRef = useRef(false);
@@ -37,6 +40,10 @@ const Interview = () => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';
 
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+
     utterance.onstart = () => {
       isSpeakingRef.current = true;
     };
@@ -47,6 +54,30 @@ const Interview = () => {
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
   };
+
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+      const preferredVoice =
+        availableVoices.find((v) => v.name === 'Trinoids en-US') ||
+        availableVoices.find((v) => v.name === 'Google US English') ||
+        availableVoices[0];
+
+      setSelectedVoice(preferredVoice);
+    };
+
+    loadVoices();
+
+    // Some browsers load voices asynchronously, so listen for this event
+    window.speechSynthesis.onvoiceschanged = () => {
+      loadVoices();
+    };
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
 
   const getResumeText = async (id) => {
     try {
@@ -105,14 +136,40 @@ const Interview = () => {
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
     recognition.interimResults = true;
-    recognition.continuous = false;
+    recognition.continuous = true;
 
     recognitionRef.current = recognition;
     finalTranscriptRef.current = '';
 
+    let silenceTimer;
+    let countdownInterval;
+
+    const resetSilenceTimer = () => {
+      // Clear existing timers
+      clearTimeout(silenceTimer);
+      clearInterval(countdownInterval);
+
+      // Start 5 second countdown
+      let timeLeft = 5;
+      setSilenceCountdown(timeLeft);
+
+      countdownInterval = setInterval(() => {
+        timeLeft -= 1;
+        setSilenceCountdown(timeLeft);
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+        }
+      }, 1000);
+
+      silenceTimer = setTimeout(() => {
+        recognition.stop();
+      }, 5000);
+    };
+
     recognition.onstart = () => {
       console.log('Recognition started');
       setIsListening(true);
+      resetSilenceTimer();
     };
 
     recognition.onresult = (event) => {
@@ -127,16 +184,25 @@ const Interview = () => {
         }
       }
       setUserAnswer(finalTranscriptRef.current + interimTranscript);
+
+      resetSilenceTimer();
     };
 
     recognition.onerror = (e) => {
       console.error('Recognition error:', e.error);
       setIsListening(false);
+      clearTimeout(silenceTimer);
+      clearInterval(countdownInterval);
+      setSilenceCountdown(0);
     };
 
     recognition.onend = () => {
       console.log('Recognition ended');
       setIsListening(false);
+      clearTimeout(silenceTimer);
+      clearInterval(countdownInterval);
+      setSilenceCountdown(0);
+
       const finalText = finalTranscriptRef.current.trim();
       if (finalText) {
         setChatHistory((prev) => [...prev, { type: 'user', text: finalText }]);
@@ -150,6 +216,23 @@ const Interview = () => {
     recognition.start();
   };
 
+  const greetings = [
+    "Hello! It's great to meet you. Let's start with a brief introduction about yourself.",
+    'Hi there! Thanks for joining today. Could you please introduce yourself?',
+    "Good to have you here. Why don't you start by telling me a little about yourself?",
+    'Welcome! Let’s begin with you introducing yourself.',
+    'Thanks for taking the time today. Can you start by sharing a bit about who you are?',
+    'Hi! Let’s kick things off with a quick introduction. Tell me about yourself.',
+    'Glad you could make it. Could you please introduce yourself to get us started?',
+    'Hello! Before we dive in, I’d love for you to tell me a little about yourself.',
+    'Great to connect! Let’s start with you giving a brief introduction about your background.',
+    'Hi, and thanks for being here. Please start by telling me a bit about yourself.',
+  ];
+
+  const getRandomGreeting = () => {
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  };
+
   const handleMainButtonClick = async () => {
     if (!isInitialized) {
       setIsLoading(true);
@@ -159,7 +242,7 @@ const Interview = () => {
       const text = await getResumeText(resumeId);
       if (text) {
         setResumeText(text);
-        const intro = 'Welcome to your interview. Tell me about your projects.';
+        const intro = getRandomGreeting();
         setChatHistory([{ type: 'ai', text: intro }]);
         setQuestion(intro);
         setIsInitialized(true);
@@ -190,6 +273,23 @@ const Interview = () => {
     <div className="interview-container">
       <div className="interview-content">
         <h2>Voice-Based Interview</h2>
+        <div className="voice-selector">
+          {/*<label htmlFor="voiceSelect">Choose Voice & Lanuaguage: </label>*/}
+          <select
+            id="voiceSelect"
+            value={selectedVoice?.name || ''}
+            onChange={(e) => {
+              const voice = voices.find((v) => v.name === e.target.value);
+              setSelectedVoice(voice);
+            }}
+          >
+            {voices.map((voice, idx) => (
+              <option key={idx} value={voice.name}>
+                {voice.name} {voice.lang} {voice.default ? '(Default)' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
         {finalScore ? (
           <div className="final-score-box">
             <h3>Final Interview Score</h3>
@@ -239,6 +339,15 @@ const Interview = () => {
                     : 'Start Speaking'
                   : 'Start Interview'}
               </button>
+              {isListening && silenceCountdown > 0 && (
+                <div className="silence-timer">
+                  <p>
+                    Listening... Please continue speaking. Auto-stopping in{' '}
+                    {silenceCountdown} second
+                    {silenceCountdown !== 1 ? 's' : ''}.
+                  </p>
+                </div>
+              )}
             </div>
           </>
         )}
