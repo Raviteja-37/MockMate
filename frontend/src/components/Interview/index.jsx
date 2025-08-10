@@ -21,8 +21,15 @@ const Interview = () => {
   const recognitionRef = useRef(null);
   const isSpeakingRef = useRef(false);
   const finalTranscriptRef = useRef('');
+  const chatAreaRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (chatAreaRef.current) {
+      chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
+    }
+  }, [chatHistory, isListening, isLoading]);
 
   const speak = (text) => {
     if (!window.speechSynthesis) return alert('Text-to-speech not supported.');
@@ -196,7 +203,7 @@ const Interview = () => {
           </div>
         ) : (
           <>
-            <div className="chat-area">
+            <div className="chat-area" ref={chatAreaRef}>
               {chatHistory.map((msg, idx) => (
                 <div key={idx} className={`chat-bubble ${msg.type}`}>
                   <p className="chat-text">

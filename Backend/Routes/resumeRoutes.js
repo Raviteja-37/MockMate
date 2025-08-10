@@ -1,4 +1,3 @@
-// mockmate-backend/routes/resumeRoutes.js (FINAL & CORRECTED)
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
@@ -15,17 +14,27 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Upload resume
 router.post(
   '/upload',
   upload.single('resumeFile'),
   protect,
   resumeController.uploadResume
 );
+
+// Get all resumes
 router.get('/', protect, resumeController.getResumes);
+
+// Get latest resume
+router.get('/latest', protect, resumeController.getLatestResume);
+
+// Get resume text (supports both :id and "latest")
 router.get('/:id', protect, resumeController.getResume);
+
+// Analyze resume (supports both :id and "latest")
 router.post('/:id/analyze', protect, resumeController.analyzeResume);
 
-// NEW: Protected route for the voice interview
+// Start interview
 router.post('/interview', protect, resumeController.handleInterview);
 
 module.exports = router;

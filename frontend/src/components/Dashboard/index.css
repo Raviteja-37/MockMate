@@ -28,6 +28,8 @@ body {
   padding: 20px;
   box-sizing: border-box;
   z-index: 1;
+  padding-top: 60px;
+  overflow: hidden;
 }
 
 /* Animated Circuit Traces (User's preferred background animation) */
@@ -57,7 +59,7 @@ body {
 /* Holographic Panel (Main Content Container) */
 .dashboard-content {
   position: relative;
-  z-index: 2;
+  z-index: 10;
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.03),

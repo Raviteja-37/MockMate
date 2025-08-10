@@ -1,16 +1,16 @@
-// mockmate-backend/controllers/resumeController.js (FINAL & CORRECTED)
 const Resume = require('../models/resume');
 const mongoose = require('mongoose');
 const axios = require('axios');
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsPromises = require('fs').promises;
 const path = require('path');
 const pdf = require('pdf-parse');
 
-// Helper function to read and parse the file
+// Helper to extract text from a PDF file
 const getResumeTextFromFile = async (fileUrl) => {
   try {
     const resumePath = path.join(__dirname, '..', fileUrl);
-    const dataBuffer = await fs.readFile(resumePath);
+    const dataBuffer = await fsPromises.readFile(resumePath);
     const pdfData = await pdf(dataBuffer);
     return pdfData.text;
   } catch (error) {
@@ -19,26 +19,53 @@ const getResumeTextFromFile = async (fileUrl) => {
   }
 };
 
+// ✅ Upload or update resume
 exports.uploadResume = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const newResume = new Resume({
-      userId: new mongoose.Types.ObjectId(req.user.userId),
+
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
+    const existingResume = await Resume.findOne({ userId });
+
+    if (existingResume) {
+      // Delete old file
+      const oldFilePath = path.join(__dirname, '..', existingResume.fileUrl);
+      fs.unlink(oldFilePath, (err) => {
+        if (err) console.error('Error deleting old resume:', err);
+      });
+
+      // Update record
+      existingResume.filename = req.file.originalname;
+      existingResume.fileUrl = req.file.path;
+      existingResume.uploadedAt = new Date();
+      await existingResume.save();
+
+      return res.status(200).json({
+        message: 'Resume updated successfully!',
+        resume: existingResume,
+      });
+    }
+
+    // Create new record if none exists
+    const newResume = await Resume.create({
+      userId,
       filename: req.file.originalname,
       fileUrl: req.file.path,
     });
-    await newResume.save();
-    res
-      .status(201)
-      .json({ message: 'Resume uploaded successfully!', resume: newResume });
+
+    res.status(201).json({
+      message: 'Resume uploaded successfully!',
+      resume: newResume,
+    });
   } catch (error) {
     console.error('Error uploading resume:', error);
     res.status(500).json({ error: 'Error uploading resume' });
   }
 };
 
+// ✅ Get all resumes for user
 exports.getResumes = async (req, res) => {
   try {
     const resumes = await Resume.find({ userId: req.user.userId });
@@ -49,36 +76,76 @@ exports.getResumes = async (req, res) => {
   }
 };
 
+// ✅ Get latest resume
+exports.getLatestResume = async (req, res) => {
+  try {
+    const resume = await Resume.findOne({ userId: req.user.userId }).sort({
+      uploadedAt: -1,
+    });
+    if (!resume) {
+      return res.status(404).json({ error: 'No resume found' });
+    }
+    res.status(200).json(resume);
+  } catch (error) {
+    console.error('Error fetching latest resume:', error);
+    res.status(500).json({ error: 'Error fetching latest resume' });
+  }
+};
+
+// ✅ Get resume text
 exports.getResume = async (req, res) => {
   try {
-    const { id } = req.params;
-    const resume = await Resume.findById(id);
+    let resume;
+
+    if (req.params.id === 'latest') {
+      // Special case: get latest resume
+      resume = await Resume.findOne({ userId: req.user.userId }).sort({
+        uploadedAt: -1,
+      });
+    } else {
+      // Normal case: find by ObjectId
+      resume = await Resume.findById(req.params.id);
+    }
+
     if (!resume) {
       return res.status(404).json({ error: 'Resume not found' });
     }
+
     const resumeText = await getResumeTextFromFile(resume.fileUrl);
     if (!resumeText) {
       return res.status(500).json({ error: 'Failed to parse resume text.' });
     }
-    res.status(200).json({ resumeText: resumeText });
+
+    res.status(200).json({ resumeText });
   } catch (error) {
     console.error('Error fetching resume text:', error);
     res.status(500).json({ error: 'Error fetching resume text.' });
   }
 };
 
+// ✅ Analyze resume
 exports.analyzeResume = async (req, res) => {
   try {
-    const { id } = req.params;
-    const resume = await Resume.findById(id);
+    let resume;
+
+    if (req.params.id === 'latest') {
+      resume = await Resume.findOne({ userId: req.user.userId }).sort({
+        uploadedAt: -1,
+      });
+    } else {
+      resume = await Resume.findById(req.params.id);
+    }
+
     if (!resume) {
       return res.status(404).json({ error: 'Resume not found' });
     }
+
     const resumeText = await getResumeTextFromFile(resume.fileUrl);
     const aiResponse = await axios.post(
       'http://localhost:5002/analyze_resume',
       { resume_text: resumeText }
     );
+
     res.status(200).json(aiResponse.data);
   } catch (error) {
     console.error('Error during AI analysis:', error);
@@ -86,23 +153,16 @@ exports.analyzeResume = async (req, res) => {
   }
 };
 
-// NEW: Endpoint to handle interview requests from the frontend
+// ✅ Handle interview
 exports.handleInterview = async (req, res) => {
   console.log('Backend (Node.js): Received interview request from frontend.');
   try {
-    // The frontend sends the resume text and the user's answer
     const { resumeText, userAnswer, chatHistory } = req.body;
-
-    // We forward this request to our Python AI service
     const aiResponse = await axios.post('http://localhost:5002/interview', {
       resume_text: resumeText,
       user_answer: userAnswer,
       chat_history: chatHistory,
     });
-    // console.error(
-    //   'Error forwarding interview request:',
-    //   error.response ? error.response.data : error
-    // );
     res.status(200).json(aiResponse.data);
   } catch (error) {
     console.error(
