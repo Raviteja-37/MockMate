@@ -14,27 +14,19 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Upload resume
+// Upload resume — protect first, then multer, then controller
 router.post(
   '/upload',
-  upload.single('resumeFile'),
   protect,
+  upload.single('resumeFile'),
   resumeController.uploadResume
 );
 
-// Get all resumes
+// Other routes
 router.get('/', protect, resumeController.getResumes);
-
-// Get latest resume
 router.get('/latest', protect, resumeController.getLatestResume);
-
-// Get resume text (supports both :id and "latest")
 router.get('/:id', protect, resumeController.getResume);
-
-// Analyze resume (supports both :id and "latest")
 router.post('/:id/analyze', protect, resumeController.analyzeResume);
-
-// Start interview
 router.post('/interview', protect, resumeController.handleInterview);
 
 module.exports = router;
