@@ -12,6 +12,11 @@ genai.configure(api_key=GEMINI_API_KEY)
 
 app = Flask(__name__)
 
+@app.route('/', methods=['GET'])
+def home():
+    return "AI Service is running 🚀", 200
+
+
 # The main endpoint for resume analysis
 @app.route('/analyze_resume', methods=['POST'])
 def analyze_resume():

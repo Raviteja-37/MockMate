@@ -3,6 +3,7 @@
 # Node.js
 /Backend/node_modules/
 /Backend/.env
+/Backend/.env.local
 /Backend/uploads/
 
 # Python
