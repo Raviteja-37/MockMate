@@ -43,6 +43,7 @@ const Login = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('called in login...');
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
         {
@@ -50,10 +51,13 @@ const Login = () => {
           password,
         }
       );
-
+      console.log('Login response:', res);
       onSubmitSuccess(res.data.token);
     } catch (err) {
-      onSubmitFailure(err.response.data.error || 'Login failed.');
+      console.error('Login error:', err);
+      const errorMessage =
+        err.response?.data?.error || err.message || 'Login failed.';
+      onSubmitFailure(errorMessage);
     }
   };
 

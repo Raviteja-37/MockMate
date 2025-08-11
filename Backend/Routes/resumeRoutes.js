@@ -4,14 +4,8 @@ const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
 const resumeController = require('../controllers/resumeController');
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
+// Use memory storage to avoid saving file locally
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Upload resume — protect first, then multer, then controller

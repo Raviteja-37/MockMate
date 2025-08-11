@@ -1,12 +1,11 @@
 // controllers/resumeController.js
 const Resume = require('../models/resume');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv').config();
 const axios = require('axios');
-const fs = require('fs');
-const fsPromises = require('fs').promises;
-const path = require('path');
 const pdf = require('pdf-parse');
 const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
 // Configure Cloudinary using env vars
 cloudinary.config({
@@ -16,25 +15,17 @@ cloudinary.config({
 });
 
 /**
- * Helper to decide how to read a resume file:
- * - If fileUrl is an http/https URL (Cloudinary), fetch it via axios and parse buffer
- * - Otherwise assume it's a local path on the server and read from disk
+ * Helper to read resume PDF text from Cloudinary URL
  */
 const getResumeTextFromFile = async (fileUrl) => {
   try {
-    // Cloudinary / remote url
     if (typeof fileUrl === 'string' && fileUrl.startsWith('http')) {
       const res = await axios.get(fileUrl, { responseType: 'arraybuffer' });
       const buffer = Buffer.from(res.data);
       const pdfData = await pdf(buffer);
       return pdfData.text;
     }
-
-    // local file path
-    const resumePath = path.join(__dirname, '..', fileUrl);
-    const dataBuffer = await fsPromises.readFile(resumePath);
-    const pdfData = await pdf(dataBuffer);
-    return pdfData.text;
+    throw new Error('Invalid resume file URL');
   } catch (error) {
     console.error('Error in getResumeTextFromFile:', error);
     return null;
@@ -42,56 +33,47 @@ const getResumeTextFromFile = async (fileUrl) => {
 };
 
 /**
- * Helper to remove a local file (non-blocking)
+ * Upload file buffer to Cloudinary using upload_stream
  */
-const removeLocalFile = (filePath) => {
-  if (!filePath) return;
-  const fullPath = path.join(__dirname, '..', filePath);
-  fs.unlink(fullPath, (err) => {
-    if (err && err.code !== 'ENOENT') {
-      console.error('Error deleting local file:', err);
-    }
+const uploadFromBuffer = (buffer, userId) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'raw', // for PDFs or other files
+        folder: `resumes/${userId}`,
+        use_filename: true,
+        unique_filename: true,
+        overwrite: false,
+      },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    streamifier.createReadStream(buffer).pipe(uploadStream);
   });
 };
 
-/**
- * Upload or update resume:
- * - Uploads incoming multer file (req.file.path) to Cloudinary (resource_type: 'raw' for PDFs)
- * - If user already had a resume, delete old Cloudinary asset (using stored publicId)
- * - Remove local file after upload
- * - Save Cloudinary secure_url and public_id to DB
- */
+// Upload or update resume (single resume per user)
 exports.uploadResume = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-
     const userId = new mongoose.Types.ObjectId(req.user.userId);
     const existingResume = await Resume.findOne({ userId });
 
-    // Upload the file to Cloudinary (raw resource_type for PDF)
-    // We use file path (multer disk storage). Optionally you can use upload_stream from buffer/memory storage.
-    const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: 'raw', // for PDFs and other non-image files
-      folder: `resumes/${userId}`, // organize by user
-      use_filename: true,
-      unique_filename: true,
-      overwrite: false,
-    });
-
-    // Remove local multer file (we no longer need it)
-    removeLocalFile(req.file.path);
+    // Upload file buffer to Cloudinary
+    const uploadResult = await uploadFromBuffer(req.file.buffer, userId);
 
     if (existingResume) {
-      // try to delete old Cloudinary asset (if publicId exists)
+      // Delete old Cloudinary asset if exists
       if (existingResume.publicId) {
         try {
           await cloudinary.uploader.destroy(existingResume.publicId, {
             resource_type: 'raw',
           });
         } catch (err) {
-          // do not fail the whole request if deletion fails - just log
           console.error('Failed to delete old Cloudinary asset:', err);
         }
       }
@@ -108,7 +90,7 @@ exports.uploadResume = async (req, res) => {
       });
     }
 
-    // create new record
+    // Create new resume record
     const newResume = await Resume.create({
       userId,
       filename: req.file.originalname,
@@ -122,13 +104,11 @@ exports.uploadResume = async (req, res) => {
     });
   } catch (error) {
     console.error('Error uploading resume:', error);
-    // If multer saved a local file and something failed before we removed it, try to remove it
-    if (req?.file?.path) removeLocalFile(req.file.path);
     return res.status(500).json({ error: 'Error uploading resume' });
   }
 };
 
-// Get all resumes (optional)
+// Get all resumes for user (optional)
 exports.getResumes = async (req, res) => {
   try {
     const resumes = await Resume.find({ userId: req.user.userId });
@@ -139,7 +119,7 @@ exports.getResumes = async (req, res) => {
   }
 };
 
-// Get latest resume
+// Get latest resume for user
 exports.getLatestResume = async (req, res) => {
   try {
     const resume = await Resume.findOne({ userId: req.user.userId }).sort({
@@ -155,7 +135,7 @@ exports.getLatestResume = async (req, res) => {
   }
 };
 
-// Get resume text (handles 'latest' or id)
+// Get resume text by id or latest
 exports.getResume = async (req, res) => {
   try {
     let resume;
@@ -183,11 +163,10 @@ exports.getResume = async (req, res) => {
   }
 };
 
-// Analyze resume — forwards resume text to AI service
+// Analyze resume text with AI service
 exports.analyzeResume = async (req, res) => {
   try {
     let resume;
-
     if (req.params.id === 'latest') {
       resume = await Resume.findOne({ userId: req.user.userId }).sort({
         uploadedAt: -1,
@@ -205,7 +184,6 @@ exports.analyzeResume = async (req, res) => {
       return res.status(500).json({ error: 'Failed to parse resume text.' });
     }
 
-    // forward to AI service
     const aiResponse = await axios.post(
       `${process.env.AI_BASE_URL}/analyze_resume`,
       { resume_text: resumeText }
@@ -218,9 +196,8 @@ exports.analyzeResume = async (req, res) => {
   }
 };
 
-// Handle interview — forward to AI service
+// Forward interview request to AI service
 exports.handleInterview = async (req, res) => {
-  console.log('Backend (Node.js): Received interview request from frontend.');
   try {
     const { resumeText, userAnswer, chatHistory } = req.body;
     const aiResponse = await axios.post(

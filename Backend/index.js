@@ -8,7 +8,15 @@ const resumeRoutes = require('./Routes/resumeRoutes');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['*'],
+};
+app.use(cors(corsOptions));
+console.log('called in api...');
 app.use(express.json());
 app.use('/api/auth', routes);
 app.use('/api/resume', resumeRoutes);
@@ -17,9 +25,15 @@ app.use('/api/resume', resumeRoutes);
 if (!process.env.MONGO_URI) {
   throw new Error('MONGO_URI is not defined in .env file');
 }
-if (!process.env.PORT) {
+const PORT = process.env.PORT || 5004;
+
+if (!PORT) {
   throw new Error('PORT is not defined in .env file');
 }
+app.use((req, res, next) => {
+  console.log(`Incoming ${req.method} request to ${req.url}`);
+  next();
+});
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -30,6 +44,6 @@ app.get('/', (req, res) => {
   res.send('Hi, Welcome to the API');
 });
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`Server is running on port ${process.env.PORT || 5000}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT || 5004}`);
 });
