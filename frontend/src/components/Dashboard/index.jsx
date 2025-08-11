@@ -18,9 +18,12 @@ const Dashboard = () => {
       const token = Cookies.get('token');
       if (!token) return;
       try {
-        const res = await axios.get('http://localhost:5001/api/resume/latest', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/resume/latest`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (res.data?._id) {
           setResumeId(res.data._id);
         }
@@ -52,7 +55,7 @@ const Dashboard = () => {
         return;
       }
       const res = await axios.post(
-        'http://localhost:5001/api/resume/upload',
+        `${import.meta.env.VITE_API_URL}/api/resume/upload`,
         formData,
         {
           headers: {
@@ -82,7 +85,7 @@ const Dashboard = () => {
       const token = Cookies.get('token');
       if (!token) return;
       const res = await axios.post(
-        `http://localhost:5001/api/resume/${resumeId}/analyze`,
+        `${import.meta.env.VITE_API_URL}/api/resume/${resumeId}/analyze`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

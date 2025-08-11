@@ -84,7 +84,7 @@ const Interview = () => {
       const token = Cookies.get('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const res = await axios.get(
-        `http://localhost:5001/api/resume/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/resume/${id}`,
         config
       );
       return res.data.resumeText;
@@ -102,7 +102,7 @@ const Interview = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const res = await axios.post(
-        'http://localhost:5001/api/resume/interview',
+        `${import.meta.env.VITE_API_URL}/api/resume/interview`,
         {
           resumeText,
           userAnswer: answer,

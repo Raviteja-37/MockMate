@@ -412,7 +412,7 @@ body {
     transform: rotate(360deg) translateX(200px) rotate(-360deg);
   }
 }
-*/ .aurora {
+.aurora {
   position: absolute;
   top: 0;
   left: 0;

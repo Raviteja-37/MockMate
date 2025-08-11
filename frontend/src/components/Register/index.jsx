@@ -32,7 +32,7 @@ const Register = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5001/api/auth/register', {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         username,
         email,
         password,
