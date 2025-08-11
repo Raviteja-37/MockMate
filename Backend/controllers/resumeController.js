@@ -142,7 +142,7 @@ exports.analyzeResume = async (req, res) => {
 
     const resumeText = await getResumeTextFromFile(resume.fileUrl);
     const aiResponse = await axios.post(
-      'http://localhost:5002/analyze_resume',
+      `${process.env.AI_BASE_URL}/analyze_resume`,
       { resume_text: resumeText }
     );
 
@@ -158,11 +158,14 @@ exports.handleInterview = async (req, res) => {
   console.log('Backend (Node.js): Received interview request from frontend.');
   try {
     const { resumeText, userAnswer, chatHistory } = req.body;
-    const aiResponse = await axios.post('http://localhost:5002/interview', {
-      resume_text: resumeText,
-      user_answer: userAnswer,
-      chat_history: chatHistory,
-    });
+    const aiResponse = await axios.post(
+      `${process.env.AI_BASE_URL}/interview`,
+      {
+        resume_text: resumeText,
+        user_answer: userAnswer,
+        chat_history: chatHistory,
+      }
+    );
     res.status(200).json(aiResponse.data);
   } catch (error) {
     console.error(
