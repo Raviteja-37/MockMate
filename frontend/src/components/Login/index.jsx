@@ -49,7 +49,8 @@ const Login = () => {
         {
           email,
           password,
-        }
+        },
+        { withCredentials: true }
       );
       console.log('Login response:', res);
       onSubmitSuccess(res.data.token);
