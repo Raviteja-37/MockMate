@@ -24,7 +24,9 @@ const Navbar = () => {
     <nav className="navbar-container">
       <div className="navbar-logo">
         {/* Logo always links to dashboard if logged in, otherwise to login */}
-        <Link to={isLoggedIn ? '/dashboard' : '/login'}>MockMate</Link>
+        <Link to={isLoggedIn ? '/dashboard' : '/login'}>
+          <img src="/NavMock.png" width="150" />
+        </Link>
       </div>
       <ul className="navbar-links">
         {/* Show Dashboard link only if logged in */}

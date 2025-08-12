@@ -83,6 +83,7 @@ body {
   letter-spacing: 1.5px;
   white-space: nowrap; /* Ensure logo text doesn't wrap */
   flex-shrink: 0; /* Prevent logo from shrinking */
+  margin: 10px; /* Add some padding for better click area */
 }
 
 .navbar-logo a:hover {
