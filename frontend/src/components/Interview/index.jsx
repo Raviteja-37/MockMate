@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FullScreenLoader, ButtonLoader } from '../Loader';
 import './index.css';
 
 const Interview = () => {
@@ -271,10 +272,10 @@ const Interview = () => {
 
   return (
     <div className="interview-container">
+      {isLoading && <FullScreenLoader />} {/* Overlay Loader */}
       <div className="interview-content">
         <h2>Voice-Based Interview</h2>
         <div className="voice-selector">
-          {/*<label htmlFor="voiceSelect">Choose Voice & Lanuaguage: </label>*/}
           <select
             id="voiceSelect"
             value={selectedVoice?.name || ''}
@@ -290,6 +291,7 @@ const Interview = () => {
             ))}
           </select>
         </div>
+
         {finalScore ? (
           <div className="final-score-box">
             <h3>Final Interview Score</h3>
@@ -319,31 +321,30 @@ const Interview = () => {
                   </p>
                 </div>
               )}
-              {isLoading && (
-                <div className="chat-bubble ai">
-                  <p className="chat-text">
-                    <strong>AI:</strong> Thinking...
-                  </p>
-                </div>
-              )}
             </div>
+
             <div className="controls">
               <button
                 onClick={handleMainButtonClick}
                 disabled={isLoading || isSpeakingRef.current}
                 className="speech-button"
               >
-                {isInitialized
-                  ? isListening
-                    ? 'Listening...'
-                    : 'Start Speaking'
-                  : 'Start Interview'}
+                {isLoading ? (
+                  <ButtonLoader />
+                ) : isInitialized ? (
+                  isListening ? (
+                    'Listening...'
+                  ) : (
+                    'Start Speaking'
+                  )
+                ) : (
+                  'Start Interview'
+                )}
               </button>
               {isListening && silenceCountdown > 0 && (
                 <div className="silence-timer">
                   <p>
-                    Listening... Please continue speaking. Auto-stopping in{' '}
-                    {silenceCountdown} second
+                    Listening... Auto-stopping in {silenceCountdown} second
                     {silenceCountdown !== 1 ? 's' : ''}.
                   </p>
                 </div>

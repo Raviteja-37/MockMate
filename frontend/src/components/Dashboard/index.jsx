@@ -1,34 +1,42 @@
-// src/components/Dashboard/index.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import './index.css';
+import { FullScreenLoader, ButtonLoader } from '../Loader'; // ✅ import loaders
 
 const Dashboard = () => {
   const [file, setFile] = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [resumeId, setResumeId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Separate loaders
+  const [isPageLoading, setIsPageLoading] = useState(true); // ✅ For full page loader
+  const [isUploadLoading, setIsUploadLoading] = useState(false); // ✅ For upload button
+  const [isAnalyzeLoading, setIsAnalyzeLoading] = useState(false); // ✅ For analyze button
+
   const navigate = useNavigate();
 
   // ✅ Fetch latest resume every time dashboard loads
   useEffect(() => {
     const fetchLatestResume = async () => {
       const token = Cookies.get('token');
-      if (!token) return;
+      if (!token) {
+        setIsPageLoading(false);
+        return;
+      }
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/resume/latest`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         if (res.data?._id) {
           setResumeId(res.data._id);
         }
       } catch (err) {
         console.log('No existing resume found.');
+      } finally {
+        setIsPageLoading(false); // ✅ Remove page loader after fetch
       }
     };
     fetchLatestResume();
@@ -44,9 +52,7 @@ const Dashboard = () => {
       alert('Please select a file to upload.');
       return;
     }
-    const formData = new FormData();
-    formData.append('resumeFile', file);
-    setIsLoading(true);
+    setIsUploadLoading(true);
 
     try {
       const token = Cookies.get('token');
@@ -54,6 +60,9 @@ const Dashboard = () => {
         alert('You must be logged in to upload a resume.');
         return;
       }
+      const formData = new FormData();
+      formData.append('resumeFile', file);
+
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/resume/upload`,
         formData,
@@ -66,12 +75,12 @@ const Dashboard = () => {
       );
       alert('File uploaded successfully!');
       setResumeId(res.data.resume._id);
-      setAnalysisResult(null); // Reset so you can re-analyze
+      setAnalysisResult(null);
     } catch (err) {
       console.error(err.response?.data || err);
       alert('File upload failed.');
     } finally {
-      setIsLoading(false);
+      setIsUploadLoading(false);
     }
   };
 
@@ -80,7 +89,7 @@ const Dashboard = () => {
       alert('No resume found.');
       return;
     }
-    setIsLoading(true);
+    setIsAnalyzeLoading(true);
     try {
       const token = Cookies.get('token');
       if (!token) return;
@@ -94,13 +103,17 @@ const Dashboard = () => {
       console.error(err.response?.data || err);
       alert('Analysis failed.');
     } finally {
-      setIsLoading(false);
+      setIsAnalyzeLoading(false);
     }
   };
 
   const onStartInterview = () => {
     navigate('/interview', { state: { resumeId } });
   };
+
+  if (isPageLoading) {
+    return <FullScreenLoader />; // ✅ Full page loader
+  }
 
   return (
     <div className="dashboard-container">
@@ -113,32 +126,45 @@ const Dashboard = () => {
 
       <div className="dashboard-content">
         <h2>Dashboard</h2>
-        <p>Welcome to MockMate! Upload your resume below to get started.</p>
+        <p>
+          Welcome to MockMate! Upload your resume (PDF) below to get started.
+        </p>
 
-        {/* Always show upload */}
+        {/* Upload Resume */}
         <form onSubmit={onFileUpload} className="upload-form">
-          <input type="file" name="resumeFile" onChange={onFileChange} />
-          <button type="submit" className="upload-button" disabled={isLoading}>
-            {isLoading
-              ? 'Uploading...'
-              : resumeId
-              ? 'Replace Resume'
-              : 'Upload Resume'}
+          <input
+            className="inp"
+            type="file"
+            name="resumeFile"
+            onChange={onFileChange}
+          />
+          <button
+            type="submit"
+            className="upload-button"
+            disabled={isUploadLoading}
+          >
+            {isUploadLoading ? (
+              <ButtonLoader />
+            ) : resumeId ? (
+              'Replace Resume'
+            ) : (
+              'Upload Resume'
+            )}
           </button>
         </form>
 
-        {/* Show Analyze if a resume exists */}
+        {/* Analyze Resume */}
         {resumeId && (
           <button
             onClick={onAnalyze}
             className="analyze-button"
-            disabled={isLoading}
+            disabled={isAnalyzeLoading}
           >
-            {isLoading ? 'Analyzing...' : 'Analyze with Last Resume'}
+            {isAnalyzeLoading ? <ButtonLoader /> : 'Analyze with Last Resume'}
           </button>
         )}
 
-        {/* After analysis */}
+        {/* AI Analysis Result */}
         {analysisResult && (
           <>
             <div className="analysis-section">

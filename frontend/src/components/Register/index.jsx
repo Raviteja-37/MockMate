@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { ButtonLoader } from '../Loader';
 import './index.css';
 
 const Register = () => {
@@ -12,6 +13,7 @@ const Register = () => {
   });
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const { username, email, password } = formData;
@@ -31,6 +33,7 @@ const Register = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, {
         username,
@@ -40,6 +43,8 @@ const Register = () => {
       onSubmitSuccess();
     } catch (err) {
       onSubmitFailure(err.response.data.error || 'Registration failed.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -100,7 +105,7 @@ const Register = () => {
             />
           </div>
           <button type="submit" className="register-button">
-            Register
+            {isLoading ? <ButtonLoader /> : 'Register'}
           </button>
         </form>
         {showSubmitError && <p className="error-message">*{errorMsg}</p>}

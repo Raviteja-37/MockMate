@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { ButtonLoader, FullScreenLoader } from '../Loader';
 import './index.css';
 
 const Login = () => {
@@ -12,6 +13,7 @@ const Login = () => {
   });
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Check for an existing token on component mount
@@ -42,6 +44,7 @@ const Login = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       console.log('called in login...');
       const res = await axios.post(
@@ -59,6 +62,8 @@ const Login = () => {
       const errorMessage =
         err.response?.data?.error || err.message || 'Login failed.';
       onSubmitFailure(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,7 +113,7 @@ const Login = () => {
             />
           </div>
           <button type="submit" className="login-button">
-            Login
+            {isLoading ? <ButtonLoader /> : 'Login'}
           </button>
         </form>
         {showSubmitError && <p className="error-message">*{errorMsg}</p>}

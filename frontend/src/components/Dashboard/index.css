@@ -376,33 +376,6 @@ body {
   }
 }
 
-.orbit-icon {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.5;
-  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
-}
-.orbit-icon.html5 {
-  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg');
-  animation-delay: 0s;
-}
-.orbit-icon.css3 {
-  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg');
-  animation-delay: 5s;
-}
-.orbit-icon.js {
-  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg');
-  animation-delay: 10s;
-}
-.orbit-icon.react {
-  background-image: url('https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg');
-  animation-delay: 15s;
-}
-
 /* This @keyframes orbit might be a duplicate or unused if rotate-orbit is used */
 @keyframes orbit {
   0% {
@@ -465,8 +438,6 @@ body {
 /* ----- Extra Responsive Tweaks for Dashboard ----- */
 
 /* Mobile: stack everything vertically */
-/* ----- CONSOLIDATED RESPONSIVE STYLES ----- */
-/* Apply these styles for tablets and smaller devices */
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 15px;
@@ -480,6 +451,7 @@ body {
     /* Adjusts max-height to give more breathing room */
     max-height: calc(100vh - 90px);
     gap: 15px;
+    margin-bottom: 80px;
   }
 
   .dashboard-content h2 {
@@ -508,6 +480,9 @@ body {
   .analyze-button {
     max-width: 100%;
     font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .analysis-section {
@@ -518,6 +493,10 @@ body {
 
   .analysis-section h3 {
     font-size: 1.3rem;
+  }
+
+  .upload-form input[type='file'] {
+    width: 100%; /* Ensure it's not too small */
   }
 
   .analysis-section pre {
