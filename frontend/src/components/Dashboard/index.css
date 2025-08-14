@@ -461,3 +461,66 @@ body {
     transform: translateY(-50%);
   }
 }
+
+/* ----- Extra Responsive Tweaks for Dashboard ----- */
+
+/* Mobile: stack everything vertically */
+/* ----- CONSOLIDATED RESPONSIVE STYLES ----- */
+/* Apply these styles for tablets and smaller devices */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+    padding-top: 75px; /* Adjust for mobile navbar height */
+  }
+
+  .dashboard-content {
+    padding: 20px;
+    /* Removes fixed min-height to allow the panel to shrink on small screens */
+    min-height: auto;
+    /* Adjusts max-height to give more breathing room */
+    max-height: calc(100vh - 90px);
+    gap: 15px;
+  }
+
+  .dashboard-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  .dashboard-content p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+
+  /* Stacks the upload form vertically */
+  .upload-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .upload-form input[type='file'] {
+    min-width: unset; /* Removes the minimum width for mobile */
+  }
+
+  /* Makes buttons full-width */
+  .upload-button,
+  .analyze-button {
+    max-width: 100%;
+    font-size: 1rem;
+  }
+
+  .analysis-section {
+    padding: 15px;
+    /* IMPORTANT: Removed conflicting min-height and overflow properties. 
+       The parent (.dashboard-content) now correctly handles all scrolling. */
+  }
+
+  .analysis-section h3 {
+    font-size: 1.3rem;
+  }
+
+  .analysis-section pre {
+    font-size: 0.9rem;
+  }
+}

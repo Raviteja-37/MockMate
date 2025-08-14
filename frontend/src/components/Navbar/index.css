@@ -1,11 +1,6 @@
 /* src/components/Navbar/index.css (DEFINITIVE FIX) */
 
 /* Universal Box Sizing for consistent layout */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
 
 /* Basic body padding for fixed navbar */
 body {
@@ -13,8 +8,6 @@ body {
   font-family: 'Inter', sans-serif;
   overflow-x: hidden; /* Prevent horizontal scrollbars */
   min-height: 100vh; /* Use min-height for content */
-  padding-top: 70px; /* Base padding for fixed navbar */
-  background-color: #1a1a2e; /* Ensure a consistent background */
   color: #e0e0e0; /* Ensure consistent text color */
 }
 
@@ -43,6 +36,9 @@ body {
   overflow: hidden; /* Crucial for animation containment */
 }
 
+.nav-logo-img {
+  width: 120px;
+}
 /* Subtle Scanline Glow Animation */
 .navbar-container::before {
   content: '';
@@ -157,28 +153,31 @@ body {
 }
 
 /* Responsive adjustments */
+
 @media (max-width: 768px) {
-  body {
-    padding-top: 120px; /* Adjust for stacked navbar on mobile */
-  }
   .navbar-container {
-    height: auto; /* Allow height to adjust for stacked content */
-    flex-direction: column;
-    padding: 10px 15px;
+    flex-direction: row; /* Stay in one line */
+    justify-content: space-between;
+    padding: 8px 12px;
+    height: auto;
   }
-  .navbar-links {
-    margin-top: 15px;
-    gap: 20px;
-    flex-wrap: wrap; /* Allow links to wrap on smaller screens */
-    justify-content: center;
-    max-width: 100%; /* Allow full width on mobile */
-  }
+
   .navbar-logo a {
-    font-size: 1.5rem;
+    font-size: 1.2rem; /* Smaller logo text */
   }
+
+  .navbar-links {
+    gap: 10px; /* Less gap on mobile */
+    flex-wrap: nowrap; /* Keep in one line */
+    max-width: none;
+  }
+
   .navbar-links li a,
   .navbar-links li button {
-    font-size: 1rem;
-    padding: 8px 12px;
+    padding: 6px 10px;
+    font-size: 0.9rem; /* Smaller button text */
+  }
+  .nav-logo-img {
+    width: 80px;
   }
 }
